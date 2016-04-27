@@ -1,0 +1,38 @@
+name:           esp8266-json-read-write
+version:        0.1
+cabal-version:  >=1.2
+build-type:     Simple
+author:         bartosz
+
+executable esp8266-json-read-write
+  hs-source-dirs:  src
+  main-is:         Main.hs
+  build-depends:   base >= 4
+  other-modules:   
+                   EspHandler,
+                   ChartGenerator
+  library 
+  build-depends:   
+                   base >= 4,
+                   sqlite-simple >=0.4 && <0.5,
+                   persistent >=2.2 && <2.3,
+                   persistent-sqlite >=2.2 && <2.3,
+                   persistent-template >=2.1 && <2.2,
+                   aeson >= 0.11.1.4,
+                   bytestring >= 0.10.4.0,
+                   http-conduit >= 2.0,
+                   old-time,
+                   text,
+                   time,
+                   Chart-cairo,
+                   Chart,
+                   transformers,
+                   mtl
+  ghc-options:     -Wall -O3
+  other-modules:   
+                   Sensor,
+                   EspHandler,
+                   ChartGenerator
+  exposed-modules: Sensor
+  hs-source-dirs:  src
+
