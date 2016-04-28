@@ -10,7 +10,8 @@ executable esp8266-json-read-write
   build-depends:   base >= 4
   other-modules:   
                    EspHandler,
-                   ChartGenerator
+                   ChartGenerator,
+                   GUI
   library 
   build-depends:   
                    base >= 4,
@@ -27,7 +28,8 @@ executable esp8266-json-read-write
                    Chart-cairo,
                    Chart,
                    transformers,
-                   mtl
+                   mtl,
+                   gtk3
   ghc-options:     -Wall -O3
   other-modules:   
                    Sensor,

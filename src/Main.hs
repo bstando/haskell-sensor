@@ -1,12 +1,8 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import GUI
 
-import Control.Applicative
-import Sensor
-import EspHandler
-import ChartGenerator
-
-
-main :: IO()
-main = makeChart
+main :: IO ()
+main = do
+       showMainWindow "procedures.glade"
+   
