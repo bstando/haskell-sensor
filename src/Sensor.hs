@@ -13,15 +13,7 @@ import Data.Text.Lazy as T (pack,concat,Text)
 
 data SensorData = SensorData { id :: Int, year :: Int, month :: Int, day :: Int, hours :: Int, minutes :: Int, seconds :: Int, temperature :: Float, humidity :: Float } deriving (Show)
 
-idSensorData (SensorData id _ _ _ _ _ _ _ _ ) = id
-yearSensorData (SensorData _ year _ _ _ _ _ _ _ ) = year
-monthSensorData (SensorData _ _ month _ _ _ _ _ _ ) = month
-daySensorData (SensorData _ _ _ day _ _ _ _ _) = day
-hoursSensorData (SensorData _ _ _ _ hours _ _ _ _ ) = hours
-minutesSensorData (SensorData _ _ _ _ _ minutes _ _ _ ) = minutes
-secondsSensorData (SensorData _ _ _ _ _ _ seconds _ _ ) = seconds
-temperatureSensorData (SensorData _ _ _ _ _ _ _ temperature _ ) = temperature
-humiditySensorData (SensorData _ _ _ _ _ _ _ _ humidity ) = humidity
+toArray :: SensorData -> (Int, Int, Int, Int, Int, Int, Int, Float, Float)
 toArray (SensorData id year month day hours minutes seconds temperature humidity) = (id, year, month, day, hours, minutes, seconds, temperature, humidity)
 
 monthToInt :: Month -> Int
@@ -51,6 +43,7 @@ getSensorData = do
                 close conn
                 return r
 
+saveSensorData :: IO ()
 saveSensorData = do
 		 conn <- open "sensor.db"
                  fromEsp <- getEspData "http://192.168.43.152/sensor"

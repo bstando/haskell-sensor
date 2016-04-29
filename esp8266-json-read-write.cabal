@@ -32,7 +32,7 @@ executable esp8266-json-read-write
                    gtk3,
                    lens,
                    stm
-  ghc-options:     -Wall -O3
+  ghc-options:     -Wall -O3 -fno-warn-unused-do-bind
   other-modules:   
                    Sensor,
                    EspHandler,

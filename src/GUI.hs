@@ -2,33 +2,22 @@
 module GUI where
 
 import Graphics.UI.Gtk as G
-import Graphics.UI.Gtk.Builder
 import ChartGenerator
 import Control.Concurrent
 import Data.Maybe
 import EspHandler
 import Sensor
 import Control.Monad
-import System.IO
-import Control.Lens as L
-import Control.Concurrent
 import Control.Concurrent.STM
 
-data Fork = Fork { _threadId :: ThreadId }
-makeLenses ''Fork
-
-idFork :: Fork -> ThreadId
-idFork (Fork _threadId) = _threadId
-
-setThread :: Fork -> ThreadId -> Fork
-setThread fork thread = fork { _threadId = thread } 
 
 data State = State {working :: TVar Int}
 
-workingState (State working) = working
+workingState :: State -> TVar Int
+workingState (State _working) = _working
 
 
-
+showMainWindow :: FilePath -> IO ()
 showMainWindow gladepath = do
                            value <-  newTVarIO 0 :: IO (TVar Int)
 			   let thread = State value
@@ -89,7 +78,8 @@ showMainWindow gladepath = do
                                                                                     then return ()
                                                                                     else do 
                                                                                          saveSensorData
-                                                                                         threadDelay (10^6 * interval)             
+                                                                                         let time = 10^6 * interval :: Int
+                                                                                         threadDelay (time)             
                                                                 widgetHide monitorDialog
                                                                 G.set sensorLabel [ labelText := "Rozpoczęto zbieranie danych"]
                                                                 widgetShowAll sensorDialog

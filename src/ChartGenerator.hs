@@ -2,8 +2,6 @@ module ChartGenerator where
 
 import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Cairo
-import Control.Monad.Trans (liftIO)
-import Data.Time.LocalTime
 import Data.Time.Calendar
 import Data.Time.LocalTime
 import Sensor
@@ -19,6 +17,7 @@ readed =  do
           let read = [ (mkDate (fromIntegral yyyy) mm dd (toRational hh) (toRational mn) (toRational ss), temp, hum) | (_,yyyy,mm,dd,hh,mn,ss,temp,hum) <- cnv ]
           return read
 
+makeChart :: IO ()
 makeChart = do
             readings <- readed
             toFile def "data.png" $ do
