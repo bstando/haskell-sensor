@@ -22,8 +22,8 @@ humidityEspData (EspData _ humidity ) = humidity
 instance FromJSON EspData
 instance ToJSON EspData
 
-getJSON :: String -> IO B.ByteString
-getJSON jsonURL = simpleHttp jsonURL
+getHTTP :: String -> IO B.ByteString
+getHTTP httpURL = simpleHttp httpURL
 
 getEspData :: [Char] -> IO (Maybe EspData)
-getEspData jsonURL = fmap decode $ getJSON $ jsonURL
+getEspData jsonURL = fmap decode $ getHTTP $ jsonURL

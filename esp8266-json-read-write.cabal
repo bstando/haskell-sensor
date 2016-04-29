@@ -29,7 +29,9 @@ executable esp8266-json-read-write
                    Chart,
                    transformers,
                    mtl,
-                   gtk3
+                   gtk3,
+                   lens,
+                   stm
   ghc-options:     -Wall -O3
   other-modules:   
                    Sensor,

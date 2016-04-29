@@ -2,17 +2,17 @@ module ChartGenerator where
 
 import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Cairo
-import Control.Monad.IO.Class
 import Control.Monad.Trans (liftIO)
 import Data.Time.LocalTime
 import Data.Time.Calendar
 import Data.Time.LocalTime
 import Sensor
 
+mkDate :: Integer -> Int -> Int -> Rational -> Rational -> Rational -> LocalTime
 mkDate yyyy mm dd hh mn ss = LocalTime (fromGregorian yyyy mm dd)
                          (dayFractionToTimeOfDay (((hh*60+mn)*60+ss)/(1440*60)))
 
-
+readed :: IO [(LocalTime, Float, Float)]
 readed =  do
           sensor <- getSensorData
           let cnv = map (\x -> toArray x) sensor
