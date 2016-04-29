@@ -16,19 +16,19 @@ data State = State {working :: TVar Int}
 workingState :: State -> TVar Int
 workingState (State _working) = _working
 
-data IP = IP {text :: String}
+data IP = IP {text :: TVar String}
+
+addrIP :: IP -> TVar String
+addrIP (IP _addr) = _addr
 
 
 
 showMainWindow :: FilePath -> IO ()
 showMainWindow gladepath = do
-                           value <-  newTVarIO 0 :: IO (TVar Int)
+                           value <- newTVarIO 0 :: IO (TVar Int)
+                           address <- newTVarIO "192.168.43.152" :: IO (TVar String)
 			   let thread = State value
-                           let ip = "192.168.43.152"
-                           let addr = IP ip
-                           let relayOnAddr = "http://"++ ip ++"/relay/1"
-                           let relayOffAddr = "http://"++ ip ++"/relay/0"
-                           let sensorAddr = "http://"++ ip ++"/sensor"
+                           let addr = IP address
                            initGUI
                            builder <- builderNew
                            builderAddFromFile builder gladepath
@@ -47,16 +47,25 @@ showMainWindow gladepath = do
                            stopMonitorButton <- builderGetObject builder castToButton "stopMonitor"
                            imageWindow <- builderGetObject builder castToWindow "imageWindow"
                            showChartButton <- builderGetObject builder castToButton "showChart"
+                           configDialog  <-  builderGetObject builder castToDialog "configDialog"
+                           configOKButton  <-  builderGetObject builder castToButton "configOK"                                                         
+                           configCancelButton  <-  builderGetObject builder castToButton "configCancel"
+                           configEntry <- builderGetObject builder castToEntry "configEntry"
+                           configButton <- builderGetObject builder castToButton "configButton"
                            exitAppButton  <-  builderGetObject builder castToButton "exitApp"
                            
                            on exitAppButton buttonActivated (widgetDestroy mainWindow)
                            on mainWindow objectDestroy mainQuit
                            on relayOnButton buttonActivated $ do
+                                                             ip <- readTVarIO (addrIP addr)
+                                                             let relayOnAddr = "http://"++ ip ++"/relay/1"
                                                              info <- getHTTP relayOnAddr
                                                              G.set sensorLabel [ labelText := "Przekaźnik włączony"]
                                                              widgetShowAll sensorDialog    
 
                            on relayOffButton buttonActivated $ do
+                                                             ip <- readTVarIO (addrIP addr)
+                                                             let relayOffAddr = "http://"++ ip ++"/relay/0"
                                                              info <- getHTTP relayOffAddr
                                                              G.set sensorLabel [ labelText := "Przekaźnik wyłączony"]
                                                              widgetShowAll sensorDialog
@@ -64,6 +73,8 @@ showMainWindow gladepath = do
                            on sensorOKButton buttonActivated (widgetHide sensorDialog)
 
                            on getSensorButton buttonActivated $ do
+                                                                ip <- readTVarIO (addrIP addr)
+                                                                let sensorAddr = "http://"++ ip ++"/sensor"
                                                                 esp <- getEspData sensorAddr
                                                                 G.set sensorLabel [ labelText := "Aktualna temperatura: " ++ show (temperatureEspData ( fromJust esp)) ++ "\n Aktualna wilgotność: " ++ show (humidityEspData ( fromJust esp)) ]
                                                                 widgetShowAll sensorDialog
@@ -85,6 +96,8 @@ showMainWindow gladepath = do
                                                                                  if x == 0
                                                                                     then return ()
                                                                                     else do 
+                                                                                         ip <- readTVarIO (addrIP addr)
+                                                                                         let sensorAddr = "http://"++ ip ++"/sensor"
                                                                                          saveSensorData sensorAddr
                                                                                          let time = 10^6 * interval :: Int
                                                                                          threadDelay (time)             
@@ -99,6 +112,16 @@ showMainWindow gladepath = do
                                                              G.set sensorLabel [ labelText := "Zatrzymano"]
                                                              widgetShowAll sensorDialog
 
+                           on configButton buttonActivated (widgetShowAll configDialog)
+                           on configOKButton buttonActivated $ do
+                                                                str <- entryGetText configEntry
+                                                                let address = str
+                                                                atomically $ writeTVar (addrIP addr) address      
+                                                                widgetHide configDialog
+                                                                G.set sensorLabel [ labelText := "Ustawiono IP"]
+                                                                widgetShowAll sensorDialog
+                           
+                           on configCancelButton buttonActivated (widgetHide configDialog) 
                            
                            widgetShowAll mainWindow
                            mainGUI
