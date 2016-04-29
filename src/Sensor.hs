@@ -43,10 +43,10 @@ getSensorData = do
                 close conn
                 return r
 
-saveSensorData :: IO ()
-saveSensorData = do
+saveSensorData :: String -> IO ()
+saveSensorData addr = do
 		 conn <- open "sensor.db"
-                 fromEsp <- getEspData "http://192.168.43.152/sensor"
+                 fromEsp <- getEspData addr
                  let r = fromJust fromEsp
 		 now <- getClockTime
 		 nowCal <- toCalendarTime now

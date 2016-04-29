@@ -9,18 +9,26 @@ import EspHandler
 import Sensor
 import Control.Monad
 import Control.Concurrent.STM
-
+import Control.Monad.IO.Class
 
 data State = State {working :: TVar Int}
 
 workingState :: State -> TVar Int
 workingState (State _working) = _working
 
+data IP = IP {text :: String}
+
+
 
 showMainWindow :: FilePath -> IO ()
 showMainWindow gladepath = do
                            value <-  newTVarIO 0 :: IO (TVar Int)
 			   let thread = State value
+                           let ip = "192.168.43.152"
+                           let addr = IP ip
+                           let relayOnAddr = "http://"++ ip ++"/relay/1"
+                           let relayOffAddr = "http://"++ ip ++"/relay/0"
+                           let sensorAddr = "http://"++ ip ++"/sensor"
                            initGUI
                            builder <- builderNew
                            builderAddFromFile builder gladepath
@@ -44,19 +52,19 @@ showMainWindow gladepath = do
                            on exitAppButton buttonActivated (widgetDestroy mainWindow)
                            on mainWindow objectDestroy mainQuit
                            on relayOnButton buttonActivated $ do
-                                                             info <- getHTTP "http://192.168.43.152/relay/1"
+                                                             info <- getHTTP relayOnAddr
                                                              G.set sensorLabel [ labelText := "Przekaźnik włączony"]
                                                              widgetShowAll sensorDialog    
 
                            on relayOffButton buttonActivated $ do
-                                                             info <- getHTTP "http://192.168.43.152/relay/0"
+                                                             info <- getHTTP relayOffAddr
                                                              G.set sensorLabel [ labelText := "Przekaźnik wyłączony"]
                                                              widgetShowAll sensorDialog
  
                            on sensorOKButton buttonActivated (widgetHide sensorDialog)
 
                            on getSensorButton buttonActivated $ do
-                                                                esp <- getEspData "http://192.168.43.152/sensor"
+                                                                esp <- getEspData sensorAddr
                                                                 G.set sensorLabel [ labelText := "Aktualna temperatura: " ++ show (temperatureEspData ( fromJust esp)) ++ "\n Aktualna wilgotność: " ++ show (humidityEspData ( fromJust esp)) ]
                                                                 widgetShowAll sensorDialog
 
@@ -77,7 +85,7 @@ showMainWindow gladepath = do
                                                                                  if x == 0
                                                                                     then return ()
                                                                                     else do 
-                                                                                         saveSensorData
+                                                                                         saveSensorData sensorAddr
                                                                                          let time = 10^6 * interval :: Int
                                                                                          threadDelay (time)             
                                                                 widgetHide monitorDialog
@@ -91,6 +99,7 @@ showMainWindow gladepath = do
                                                              G.set sensorLabel [ labelText := "Zatrzymano"]
                                                              widgetShowAll sensorDialog
 
+                           
                            widgetShowAll mainWindow
                            mainGUI
       
